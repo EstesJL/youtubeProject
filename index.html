@@ -7,14 +7,16 @@
   <body>
     <div id="player"></div>
     <button onclick="getTime()">Get Timestamp</button>
+    <div id="stamp-list"></div>
+
     <script>
-      const tag = document.createElement('script');
+      var tag = document.createElement('script');
       tag.src = "https://www.youtube.com/player_api";
-      const firstScriptTag = document.getElementsByTagName('script')[0];
+      var firstScriptTag = document.getElementsByTagName('script')[0];
       firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-      const player;
-      onYouTubePlayerAPIReady() {
+      var player;
+      function onYouTubePlayerAPIReady() {
         player = new YT.Player('player', {
           height: '360',
           width: '640',
@@ -22,9 +24,39 @@
         });
       }
 
-      getTime() {
-        console.log(player.getCurrentTime());
+      function getStamps() {
+          var stamps = new Array;
+          var stamps_str = localStorage.getItem('stamp');
+          if (stamps_str != null) {
+              stamps = JSON.parse(stamps_str);
+          }
+          return stamps;
       }
+
+      function show() {
+          let stamps = getStamps();
+          let html = '<ul>';
+          for (let i = 0; i < stamps.length; i++) {
+              html += '<li>' + stamps[i] + '</li>';
+          };
+          html += '</ul>';
+          document.getElementById('stamp-list').innerHTML = html;
+      }
+
+      function getTime() {
+
+        if (player.getPlayerState() === 1) {
+          var stamp = player.getCurrentTime();
+
+          var stamps = getStamps();
+          stamps.push(stamp);
+          localStorage.setItem('stamp', JSON.stringify(stamps));
+
+          show();
+
+          return false;
+        }
+       }
 
     </script>
   </body>
